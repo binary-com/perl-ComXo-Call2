@@ -4,6 +4,43 @@ use strict;
 use 5.008_005;
 our $VERSION = '0.01';
 
+use SOAP::Lite;
+use IO::Socket::SSL qw( SSL_VERIFY_NONE );
+
+sub makecall {
+    my $args     = shift;
+    my $USER     = $args->{user};
+    my $PASS     = $args->{pass};
+    my $callfrom = $args->{callfrom};
+    my $callto   = $args->{callto};
+
+    $callto   =~ s/^[+]//;
+    $callfrom =~ s/^[+]//;
+    die 'invalid callto'   unless $callto   =~ /^[0-9]+$/;
+    die 'invalid callfrom' unless $callfrom =~ /^[0-9]+$/;
+
+    my $soap_request = SOAP::Lite->proxy("https://www.comxo.com/webservices/buttontel.cfc")->uri("http://webservices");
+    $soap_request->transport->ssl_opts(
+        verify_hostname => 0,
+        SSL_verify_mode => SSL_VERIFY_NONE
+    );
+    $soap_request->InitCall(
+        SOAP::Data->type('string')->name('account')->value($USER),   SOAP::Data->type('string')->name('password')->value($PASS),
+        SOAP::Data->type('string')->name('amessage')->value('0'),    SOAP::Data->type('string')->name('bmessage')->value('0'),
+        SOAP::Data->type('string')->name('adigits')->value(''),      SOAP::Data->type('string')->name('bdigits')->value(''),
+        SOAP::Data->type('string')->name('anumber')->value($callto), SOAP::Data->type('string')->name('bnumber')->value($callfrom),
+        SOAP::Data->type('double')->name('delay')->value(0),         SOAP::Data->type('string')->name('alias')->value('FixedOdds'),
+        SOAP::Data->type('string')->name('name')->value(''),         SOAP::Data->type('string')->name('company')->value(''),
+        SOAP::Data->type('string')->name('postcode')->value(''),     SOAP::Data->type('string')->name('email')->value(''),
+        SOAP::Data->type('string')->name('product')->value(''),      SOAP::Data->type('string')->name('url')->value(''),
+        SOAP::Data->type('string')->name('extra1')->value(''),       SOAP::Data->type('string')->name('extra2')->value(''),
+        SOAP::Data->type('string')->name('extra3')->value(''),       SOAP::Data->type('string')->name('extra4')->value(''),
+        SOAP::Data->type('string')->name('extra5')->value(''),
+    );
+    my $res = $soap_request->result;
+    return ($res =~ /^[0-9]+$/ ? 1 : ());
+}
+
 1;
 __END__
 

@@ -20,7 +20,10 @@ my %WriteMakefileArgs = (
   "EXE_FILES" => [],
   "LICENSE" => "perl",
   "NAME" => "ComXo::Call2",
-  "PREREQ_PM" => {},
+  "PREREQ_PM" => {
+    "IO::Socket::SSL" => 0,
+    "SOAP::Lite" => 0
+  },
   "TEST_REQUIRES" => {
     "Test::More" => "0.96"
   },
@@ -32,6 +35,8 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
+  "IO::Socket::SSL" => 0,
+  "SOAP::Lite" => 0,
   "Test::More" => "0.96"
 );
 

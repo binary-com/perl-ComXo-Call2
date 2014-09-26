@@ -60,11 +60,11 @@ ComXo::Call2 is
 
 =head1 AUTHOR
 
-Fayland Lam E<lt>fayland@gmail.comE<gt>
+Binary.com E<lt>fayland@binary.comE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2014- Fayland Lam
+Copyright 2014- Binary.com
 
 =head1 LICENSE
 

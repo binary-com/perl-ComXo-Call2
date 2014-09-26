@@ -15,11 +15,11 @@ ComXo::Call2 is
 
 # AUTHOR
 
-Fayland Lam <fayland@gmail.com>
+Binary.com <fayland@binary.com>
 
 # COPYRIGHT
 
-Copyright 2014- Fayland Lam
+Copyright 2014- Binary.com
 
 # LICENSE
 

@@ -1,7 +1,7 @@
 {
    "abstract" : "API for the ComXo Call2 service (www.call2.com)",
    "author" : [
-      "Fayland Lam <fayland@gmail.com>"
+      "Binary.com <fayland@binary.com>"
    ],
    "dynamic_config" : 0,
    "generated_by" : "Dist::Milla version v1.0.5, Dist::Zilla version 5.014, CPAN::Meta::Converter version 2.133380",

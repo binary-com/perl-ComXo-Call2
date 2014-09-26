@@ -11,7 +11,7 @@ use ExtUtils::MakeMaker 6.30;
 
 my %WriteMakefileArgs = (
   "ABSTRACT" => "API for the ComXo Call2 service (www.call2.com)",
-  "AUTHOR" => "Fayland Lam <fayland\@gmail.com>",
+  "AUTHOR" => "Binary.com <fayland\@binary.com>",
   "BUILD_REQUIRES" => {},
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "6.30"

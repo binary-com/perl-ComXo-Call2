@@ -8,6 +8,16 @@ use Carp;
 use SOAP::Lite;
 use IO::Socket::SSL qw( SSL_VERIFY_NONE );
 
+my %possible_err = (
+    '*01' => 'Number Failed',
+    '*02' => 'Alias Does Not Exist',
+    '*03' => 'No Call Records',
+    '*04' => 'Account details incorrect',
+    '*05' => 'Not enough credit on account',
+    '*06' => 'ID not recognised',
+    '*07' => 'Possible Fraud Attempt',
+);
+
 use vars qw/$errstr/;
 sub errstr { $errstr }
 
@@ -58,22 +68,64 @@ sub InitCall {
         $errstr = $som->faultstring;
         return;
     }
-
-    my %possible_err = (
-        '*01' => 'Number Failed',
-        '*02' => 'Alias Does Not Exist',
-        '*03' => 'No Call Records',
-        '*04' => 'Account details incorrect',
-        '*05' => 'Not enough credit on account',
-        '*06' => 'ID not recognised',
-        '*07' => 'Possible Fraud Attempt',
-    );
     if (exists $possible_err{$som->result}) {
         $errstr = $possible_err{$som->result};
         return;
     }
-
     return $som->result;
+}
+
+sub GetAllCalls {
+    my $self = shift;
+    my %args  = @_ % 2 ? %{$_[0]} : @_;
+
+    my @args;
+    foreach my $x ('account', 'password', 'fromdate', 'todate') {
+        $args{$x} = '' unless exists $args{$x};
+        my $v = $args{$x};
+        $v = $self->{$x} if not $v and exists $self->{$x}; # self for account/password
+        my $type = 'string';
+        push @args, SOAP::Data->type($type)->name($x)->value($v);
+    }
+
+    my $som = $self->{soup}->GetAllCalls(@args);
+    if ($som->fault) {
+        $errstr = $som->faultstring;
+        return;
+    }
+    if (exists $possible_err{$som->result}) {
+        $errstr = $possible_err{$som->result};
+        return;
+    }
+    my $text = $som->result;
+    my @calls = split(/[\r\n]+/, $text);
+    @calls = map { [ split(',') ] } @calls;
+    return wantarray ? @calls : \@calls;
+}
+
+sub GetCallStatus {
+    my ($self, $callid) = @_;
+
+    $callid or croak "callid is required.";
+
+    my @args;
+    foreach my $x ('account', 'password') {
+        push @args, SOAP::Data->type('string')->name($x)->value($self->{$x});
+    }
+    push @args, SOAP::Data->type('double')->name('callid')->value($callid);
+
+    my $som = $self->{soup}->GetCallStatus(@args);
+    if ($som->fault) {
+        $errstr = $som->faultstring;
+        return;
+    }
+    if (exists $possible_err{$som->result}) {
+        $errstr = $possible_err{$som->result};
+        return;
+    }
+    my $text = $som->result;
+    my @status = split(',', $text);
+    return wantarray ? @status : \@status;
 }
 
 1;
@@ -194,6 +246,43 @@ string, extra4 - Additional Information 4
 string, extra5 - Additional Information 5
 
 =back
+
+=head2 GetAllCalls
+
+Get All Call Details
+
+    my @calls = $call2->GetAllCalls(
+        fromdate => $dt_from,
+        todate   => $dt_to
+    ) or die $call2->errstr;
+
+Array of arrayref of
+
+Call Reference,Start Time,A Number,B Number,A Clear Reason,B Clear Reason,A Status,B Status,Duration(seconds),
+A Country,B Country,Cost,Name,Company,Post Code,Email,Product,URL,Extra1,Extra2,Extra3,Extra4,Extra5,AAnswered,BAnswered
+
+=over 4
+
+=item * fromdate
+
+datetime, fromdate - Date (YYYY-MM-DD HH:MM)
+
+=item * todate
+
+datetime, todate - Date (YYYY-MM-DD HH:MM)
+
+=back
+
+=head2 GetCallStatus
+
+Get Call Details
+
+    my $call_status = $call2->GetCallStatus($call_id) or die $call2->errstr;
+
+Arrayref of
+
+Call Reference,Start Time,A Number,B Number,A Clear Reason,B Clear Reason,A Status,B Status,Duration(seconds),
+A Country,B Country,Cost,Name,Company,Post Code,Email,Product,URL,Extra1,Extra2,Extra3,Extra4,Extra5,AAnswered,BAnswered
 
 =head1 AUTHOR
 

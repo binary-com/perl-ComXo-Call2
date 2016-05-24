@@ -13,10 +13,10 @@ before_install:
     - source ~/travis-perl-helpers/init
     - build-perl
     - perl -V
-    - "cpanm SOAP::Lite"
-    - "cpanm IO::Socket::SSL"
-    - "cpanm Test::More"
-    - "cpanm Devel::Cover::Report::Coveralls"
+    - "cpanm -n SOAP::Lite"
+    - "cpanm -n IO::Socket::SSL"
+    - "cpanm -n Test::More"
+    - "cpanm -n Devel::Cover::Report::Coveralls"
 script:
   perl Makefile.PL && make test && cover -test -report coveralls
 

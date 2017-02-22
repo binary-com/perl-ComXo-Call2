@@ -1,7 +1,7 @@
 package ComXo::Call2;
 
 use strict;
-use 5.008_005;
+use warnings;
 our $VERSION = '0.01';
 
 use Carp;
@@ -19,11 +19,11 @@ my %possible_err = (
 );
 
 use vars qw/$errstr/;
-sub errstr { $errstr }
+sub errstr { return $errstr }
 
-sub new {
+sub new { ## no critic (ArgUnpacking)
     my $class = shift;
-    my %args  = @_ % 2 ? %{$_[0]} : @_;
+    my %args = @_ % 2 ? %{$_[0]} : @_;
 
     for (qw/account password/) {
         $args{$_} || croak "Param $_ is required.";
@@ -34,14 +34,14 @@ sub new {
         verify_hostname => 0,
         SSL_verify_mode => SSL_VERIFY_NONE
     );
-    SOAP::Trace->import('all') if $args{debug}; # for debug
+    SOAP::Trace->import('all') if $args{debug};    # for debug
 
     return bless \%args, $class;
 }
 
-sub InitCall {
+sub InitCall { ## no critic (ArgUnpacking)
     my $self = shift;
-    my %args  = @_ % 2 ? %{$_[0]} : @_;
+    my %args = @_ % 2 ? %{$_[0]} : @_;
 
     my $anumber = $args{anumber} or croak 'anumber is required.';
     my $bnumber = $args{bnumber} or croak 'bnumber is required.';
@@ -52,13 +52,18 @@ sub InitCall {
 
     $args{amessage} = '0' unless exists $args{amessage};
     $args{bmessage} = '0' unless exists $args{bmessage};
-    $args{delay} = 0 unless exists $args{delay};
+    $args{delay}    = 0   unless exists $args{delay};
 
     my @args = ();
-    foreach my $x ('account', 'password', 'amessage', 'bmessage', 'adigits', 'bdigits', 'anumber', 'bnumber', 'delay', 'alias', 'name', 'company', 'postcode', 'email', 'product', 'url', 'extra1', 'extra2', 'extra3', 'extra4', 'extra5') {
+    foreach my $x (
+        'account', 'password', 'amessage', 'bmessage', 'adigits',  'bdigits', 'anumber', 'bnumber',
+        'delay',   'alias',    'name',     'company',  'postcode', 'email',   'product', 'url',
+        'extra1',  'extra2',   'extra3',   'extra4',   'extra5'
+        )
+    {
         $args{$x} = '' unless exists $args{$x};
         my $v = $args{$x};
-        $v = $self->{$x} if not $v and exists $self->{$x}; # self for account/password
+        $v = $self->{$x} if not $v and exists $self->{$x};    # self for account/password
         my $type = ($x eq 'delay') ? 'double' : 'string';
         push @args, SOAP::Data->type($type)->name($x)->value($v);
     }
@@ -75,15 +80,15 @@ sub InitCall {
     return $som->result;
 }
 
-sub GetAllCalls {
+sub GetAllCalls { ## no critic (ArgUnpacking)
     my $self = shift;
-    my %args  = @_ % 2 ? %{$_[0]} : @_;
+    my %args = @_ % 2 ? %{$_[0]} : @_;
 
     my @args;
     foreach my $x ('account', 'password', 'fromdate', 'todate') {
         $args{$x} = '' unless exists $args{$x};
         my $v = $args{$x};
-        $v = $self->{$x} if not $v and exists $self->{$x}; # self for account/password
+        $v = $self->{$x} if not $v and exists $self->{$x};    # self for account/password
         my $type = 'string';
         push @args, SOAP::Data->type($type)->name($x)->value($v);
     }
@@ -99,7 +104,7 @@ sub GetAllCalls {
     }
     my $text = $som->result;
     my @calls = split(/[\r\n]+/, $text);
-    @calls = map { [ split(',') ] } @calls;
+    @calls = map { [split(',')] } @calls;
     return wantarray ? @calls : \@calls;
 }
 
@@ -143,7 +148,7 @@ ComXo::Call2 - API for the ComXo Call2 service (www.call2.com)
 
 =head1 DESCRIPTION
 
-ComXo::Call2 is a perl implemention for L<http://www.comxo.com/webservices/buttontel.cfm>
+ComXo::Call2 is a perl implementation for L<http://www.comxo.com/webservices/buttontel.cfm>
 
 =head1 METHODS
 
@@ -283,6 +288,8 @@ Arrayref of
 
 Call Reference,Start Time,A Number,B Number,A Clear Reason,B Clear Reason,A Status,B Status,Duration(seconds),
 A Country,B Country,Cost,Name,Company,Post Code,Email,Product,URL,Extra1,Extra2,Extra3,Extra4,Extra5,AAnswered,BAnswered
+
+=head2 errstr
 
 =head1 AUTHOR
 

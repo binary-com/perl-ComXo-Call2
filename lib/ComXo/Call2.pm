@@ -2,7 +2,7 @@ package ComXo::Call2;
 
 use strict;
 use warnings;
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use Carp;
 use SOAP::Lite;
@@ -21,7 +21,7 @@ my %possible_err = (
 use vars qw/$errstr/;
 sub errstr { return $errstr }
 
-sub new { ## no critic (ArgUnpacking)
+sub new {    ## no critic (ArgUnpacking)
     my $class = shift;
     my %args = @_ % 2 ? %{$_[0]} : @_;
 
@@ -39,7 +39,7 @@ sub new { ## no critic (ArgUnpacking)
     return bless \%args, $class;
 }
 
-sub InitCall { ## no critic (ArgUnpacking)
+sub InitCall {                                     ## no critic (ArgUnpacking)
     my $self = shift;
     my %args = @_ % 2 ? %{$_[0]} : @_;
 
@@ -80,7 +80,7 @@ sub InitCall { ## no critic (ArgUnpacking)
     return $som->result;
 }
 
-sub GetAllCalls { ## no critic (ArgUnpacking)
+sub GetAllCalls {    ## no critic (ArgUnpacking)
     my $self = shift;
     my %args = @_ % 2 ? %{$_[0]} : @_;
 
